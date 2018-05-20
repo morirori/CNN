@@ -1,6 +1,6 @@
 package com.CNN.Abstarct;
 
-public interface IClassifier {
+public interface INetwork {
 
     void build();
 
