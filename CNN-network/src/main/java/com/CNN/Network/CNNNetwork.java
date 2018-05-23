@@ -6,6 +6,7 @@ import com.CNN.Utills.NetworkConfigurator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 
 import java.util.Map;
 
@@ -22,7 +23,8 @@ public class CNNNetwork implements INetwork {
     }
 
     @Override
-    public void build(){
+    public void build(Map<Integer,ILayer> layers) {
+        this.layerMap=layers;
         NeuralNetConfiguration.ListBuilder conf = new NeuralNetConfiguration.Builder().
                 seed(this.configurator.getSeed())
                 .l2(this.configurator.getL2coef())
@@ -33,10 +35,18 @@ public class CNNNetwork implements INetwork {
         layerMap.forEach((k,v) -> conf.layer(k,v.getLayer()));
         MultiLayerConfiguration finalConf = conf.build();
         this.network = new MultiLayerNetwork(finalConf);
+        this.network.init();
     }
 
     @Override
-    public void predict() {
-
+    public void train(int epochs, DataSetIterator data){
+        for (int i=1; i<epochs; i++){
+            this.network.fit(data);
+            data.reset();
+        }
+    }
+    @Override
+    public void predict(DataSetIterator data) {
+        this.network.evaluate(data);
     }
 }
